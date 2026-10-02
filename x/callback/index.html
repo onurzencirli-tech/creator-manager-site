@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Returning to Creator Manager…</title>
+  <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+  <main>
+    <h1>Returning to Creator Manager…</h1>
+    <p class="muted" id="note">X sent you back. Handing the sign-in result to Creator Manager running on this computer.</p>
+  </main>
+  <script>
+    // Forwards the one-time OAuth result to Creator Manager on this computer.
+    // Only known OAuth parameters are passed, nothing is stored, and it never
+    // redirects anywhere but the fixed local address. The code is single-use and
+    // useless without the PKCE verifier, which never leaves the owner's machine.
+    (function () {
+      var TARGET = "http://localhost:3000/api/oauth/x/callback";
+      var allowed = ["code", "state", "error", "error_description"];
+      var incoming = new URLSearchParams(window.location.search);
+      var out = new URLSearchParams();
+      allowed.forEach(function (key) {
+        var value = incoming.get(key);
+        if (value !== null) out.set(key, value);
+      });
+      if (!out.has("code") && !out.has("error")) {
+        document.getElementById("note").textContent =
+          "Nothing to hand over: this page is only used during X sign-in.";
+        return;
+      }
+      window.location.replace(TARGET + "?" + out.toString());
+    })();
+  </script>
+</body>
+</html>
